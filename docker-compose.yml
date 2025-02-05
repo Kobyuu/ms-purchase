@@ -9,18 +9,22 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
     ports:
-      - "6432:5432"
+      - "6433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - microservicios-red
 
-  # Node.js Application
-
+  # Redis
   redis:
     image: redis:7
     container_name: ms-purchase_redis
     ports:
-      - "7379:6379"
+      - "7380:6379"
+    networks:
+      - microservicios-red
 
+  # Node.js Application
   app:
     build:
       context: .
@@ -30,9 +34,9 @@ services:
       - "5004:4004"
     environment:
       DATABASE_URL: postgres://postgres:1234@postgres:5432/ms-purchase
-      PRODUCT_SERVICE_URL: http://ms-catalog:4001/api/products
-      INVENTORY_SERVICE_URL: http://ms-inventory:4002/api/inventory
-      PAYMENT_SERVICE_URL: http://ms-payment:4003/api/payment
+      PRODUCT_SERVICE_URL: http://ms-catalog_app:4001/api/products
+      INVENTORY_SERVICE_URL: http://ms-inventory_app:4002/api/inventory
+      PAYMENT_SERVICE_URL: http://ms-payment_app:4003/api/payment
       PORT: 4004
       NODE_ENV: production
       REDIS_URL: redis://redis:6379
@@ -55,5 +59,4 @@ volumes:
 
 networks:
   microservicios-red:
-    name: microservicios-red
-    driver: bridge
+    external: true

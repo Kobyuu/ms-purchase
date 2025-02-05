@@ -1,14 +1,16 @@
-import axios from 'axios';
-import { ENV } from '../config/constants';
-import { withRetries } from '../utils/retry.util';
+import { axiosInstance } from '../config/axiosClient';
 import { IProductResponse } from '../types/purchase.types';
 
 export class ProductService {
   static async getProduct(productId: number): Promise<IProductResponse> {
-    const url = `${process.env.PRODUCT_SERVICE_URL}/${productId}`;
-    return await withRetries(async () => {
-      const response = await axios.get<IProductResponse>(url);
+    try {
+      const url = `${process.env.PRODUCT_SERVICE_URL}/${productId}`;
+      console.log('Requesting product from:', url);
+      const response = await axiosInstance.get<IProductResponse>(url);
       return response.data;
-    }, ENV.RETRY_LIMIT);
+    } catch (error) {
+      console.error('Error fetching product:', error.message);
+      throw error;
+    }
   }
 }
