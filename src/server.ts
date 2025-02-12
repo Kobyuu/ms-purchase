@@ -12,6 +12,6 @@ const server = express()
 server.use(express.json())
 
 // Configuración de rutas
-server.use('/api/purchases', router)
+server.use('/api/purchase', router)
 
 export default server

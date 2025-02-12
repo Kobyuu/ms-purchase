@@ -1,9 +1,22 @@
 import { Table, Column, Model, DataType, Default } from 'sequelize-typescript';
 
 @Table({
-    tableName: 'purchases'
+    tableName: 'purchases',
+    indexes: [
+        // We can add an index for better query performance, but not unique
+        {
+            fields: ['product_id']
+        }
+    ]
 })
 class Purchase extends Model {
+    @Column({
+        type: DataType.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    })
+    declare id: number;
+
     @Column({
         type: DataType.INTEGER,
         allowNull: false

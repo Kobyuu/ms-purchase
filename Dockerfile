@@ -16,11 +16,8 @@ RUN npm install -g nodemon
 # Copia el resto de la aplicación
 COPY . .
 
-# Copia el archivo .env
-COPY .env .env
-
 # Expone el puerto en el que la aplicación correrá
-EXPOSE 4001
+EXPOSE 4004
 
 # Define el comando para correr la aplicación
 CMD ["npm","run","dev"]

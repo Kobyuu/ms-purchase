@@ -10,7 +10,8 @@ const requiredEnvVars = [
     'REDIS_PORT',
     'CACHE_EXPIRY',
     'RETRY_ATTEMPTS',
-    'RETRY_DELAY'
+    'RETRY_DELAY',
+    'PRODUCT_SERVICE_URL'
 ];
 // Verificar que todas las variables de entorno requeridas estén definidas
 requiredEnvVars.forEach((env) => {

@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   # PostgreSQL Database
   postgres:
@@ -9,18 +10,22 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
     ports:
-      - "6433:5432"
+      - "9432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_purchase:/var/lib/postgresql/data
     networks:
       - microservicios-red
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 5
 
   # Redis
   redis:
     image: redis:7
     container_name: ms-purchase_redis
     ports:
-      - "7380:6379"
+      - "10379:6379"
     networks:
       - microservicios-red
 
@@ -34,9 +39,7 @@ services:
       - "5004:4004"
     environment:
       DATABASE_URL: postgres://postgres:1234@postgres:5432/ms-purchase
-      PRODUCT_SERVICE_URL: http://ms-catalog_app:4001/api/products
-      INVENTORY_SERVICE_URL: http://ms-inventory_app:4002/api/inventory
-      PAYMENT_SERVICE_URL: http://ms-payment_app:4003/api/payment
+      PRODUCT_SERVICE_URL: http://ms-catalog_app:4001/api/product
       PORT: 4004
       NODE_ENV: production
       REDIS_URL: redis://redis:6379
@@ -55,7 +58,7 @@ services:
       - microservicios-red
 
 volumes:
-  postgres_data:
+  postgres_data_purchase:
 
 networks:
   microservicios-red:

@@ -11,5 +11,6 @@ export const ENV = {
         PORT: Number(process.env.REDIS_PORT) || DEFAULTS.REDIS.PORT,
         CACHE_EXPIRY: Number(process.env.CACHE_EXPIRY) || DEFAULTS.REDIS.CACHE_EXPIRY,
         RETRY_DELAY: Number(process.env.RETRY_DELAY) || DEFAULTS.REDIS.RETRY_DELAY
-    }
+    },
+    PRODUCT_SERVICE_URL: "http://ms-catalog_app:4001/api/product",
 };
