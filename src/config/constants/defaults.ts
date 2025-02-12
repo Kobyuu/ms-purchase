@@ -8,5 +8,6 @@ export const DEFAULTS = {
         CACHE_EXPIRY: 3600,
         RETRY_DELAY: 1000
     },
-    RETRY_ATTEMPTS: 3
+    RETRY_ATTEMPTS: 3,
+    PRODUCT_SERVICE_URL: 'http://localhost:4001/products',
 };
