@@ -1,5 +1,7 @@
 import { DEFAULTS } from './defaults';
-import '../validateEnv';
+import { validateEnv } from '../validateEnv';
+
+validateEnv();
 
 const {
     DATABASE_URL,
