@@ -9,7 +9,7 @@ export interface IProduct {
   productId: number; 
   name: string;
   price: number;
-  active: boolean;
+  activate: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

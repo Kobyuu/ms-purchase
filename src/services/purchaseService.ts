@@ -14,7 +14,10 @@ export class PurchaseService {
     const transaction = await db.transaction();
     
     try {
-      // Verificar que el producto existe
+      if (!purchaseData.product_id || isNaN(purchaseData.product_id)) {
+        throw new Error(ERROR_MESSAGES.INVALID_PRODUCT_ID);
+      }
+
       console.log(ERROR_MESSAGES.FETCHING_PRODUCT, purchaseData.product_id);
       const productResponse = await ProductService.getProductById(purchaseData.product_id);
 
@@ -31,9 +34,9 @@ export class PurchaseService {
 
       await transaction.commit();
       
-      // Invalidar cache usando cacheService
       const cacheKey = `product:${purchaseData.product_id}`;
       await cacheService.clearCache([cacheKey]);
+      console.log(ERROR_MESSAGES.CACHE_CLEARED, cacheKey);
       
       return purchase;
     } catch (error) {
@@ -44,24 +47,30 @@ export class PurchaseService {
   }
 
   static async deletePurchase(purchaseId: number) {
+    if (!purchaseId || isNaN(purchaseId)) {
+      throw new Error(ERROR_MESSAGES.INVALID_PURCHASE_ID);
+    }
+
     const transaction = await db.transaction();
   
     try {
       const purchase = await Purchase.findByPk(purchaseId);
   
       if (!purchase) {
+        await transaction.rollback();
         throw new Error(ERROR_MESSAGES.PURCHASE_NOT_FOUND);
       }
   
       await purchase.destroy({ transaction });
       await transaction.commit();
       
-      // Invalidar cache del producto asociado
       const cacheKey = `product:${purchase.product_id}`;
       await cacheService.clearCache([cacheKey]);
+      console.log(ERROR_MESSAGES.CACHE_CLEARED, cacheKey);
       
       return true;
     } catch (error) {
+      console.error(ERROR_MESSAGES.DELETE_PURCHASE_ERROR, error);
       await transaction.rollback();
       throw error;
     }

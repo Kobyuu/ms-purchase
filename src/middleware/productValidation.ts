@@ -17,15 +17,10 @@ export class ProductValidationMiddleware {
     };
   }
 
-  static validateProduct(product: IProduct | null): IProductResponse | null {
+  static validateProduct(product: IProduct | null): IProductResponse {
     if (!product) {
       return this.createErrorResponse(ERROR_MESSAGES.PRODUCT_NOT_FOUND, HTTP.NOT_FOUND);
     }
-
-    if (!product.active) {
-      return this.createErrorResponse(ERROR_MESSAGES.PRODUCT_INACTIVE, HTTP.NOT_FOUND);
-    }
-
-    return null;
+    return this.createSuccessResponse(product);
   }
 }

@@ -14,11 +14,15 @@ export const ERROR_MESSAGES = {
     DB_RECONNECTED: 'Reconectado a la base de datos con éxito.',
     PRODUCT_REQUEST: 'Requesting product from:',
     PRODUCT_FETCH_ERROR:'Error fetching product:',
-    PRODUCT_INACTIVE: 'El producto está desactivado',
     FETCHING_PRODUCT: 'Error fetching product with ID:',
     CREATING_PURCHASE: 'Error creating purchase:',
     CREATE_PURCHASE_ERROR: 'Error in purchase creation:',
     PURCHASE_DELETE_ERROR: 'Error deleting purchase:',
+    INVALID_DATA: 'Datos inválidos',
+    INVALID_PRODUCT_ID: 'ID de producto inválido',
+    CACHE_CLEARED: 'Cache cleared for key:',
+    INVALID_PURCHASE_ID: 'ID de compra inválido',
+    DELETE_PURCHASE_ERROR: 'Error al eliminar la compra'
 };
 
 export const SUCCESS_MESSAGES = {
