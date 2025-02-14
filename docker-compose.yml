@@ -20,6 +20,18 @@ services:
       interval: 5s
       retries: 5
 
+  db-init:
+    image: postgres:15
+    container_name: ms-purchase_db-init
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      psql -U postgres -h postgres -c "CREATE DATABASE \"ms-purchase\";"
+    environment:
+      PGPASSWORD: 1234
+    networks:
+      - microservicios-red
   # Redis
   redis:
     image: redis:7
