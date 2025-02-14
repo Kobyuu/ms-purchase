@@ -1,31 +1,29 @@
-import { ProductService } from './productService';
+import ProductService from './productService';
 import Purchase from '../models/Purchase.model';
 import { IPurchase } from '../types/purchase.types';
 import db from '../config/db';
-import { ERROR_MESSAGES } from '../config/constants';
-import { redis } from '../config/redisClient';
+import { ERROR_MESSAGES, HTTP } from '../config/constants';
+import { cacheService } from './redisCacheService';
 
-// Obtener todas las compras
 export class PurchaseService {
   static async getAllPurchases() {
     return await Purchase.findAll();
   }
-// Crear una compra
+
   static async createPurchase(purchaseData: IPurchase) {
     const transaction = await db.transaction();
     
     try {
       // Verificar que el producto existe
-      console.log('Fetching product:', purchaseData.product_id);
-      const product = await ProductService.getProduct(purchaseData.product_id);
+      console.log(ERROR_MESSAGES.FETCHING_PRODUCT, purchaseData.product_id);
+      const productResponse = await ProductService.getProductById(purchaseData.product_id);
 
-      if (!product) {
+      if (productResponse.statusCode !== HTTP.OK) {
         await transaction.rollback();
-        throw new Error(ERROR_MESSAGES.PRODUCT_NOT_FOUND);
+        throw new Error(productResponse.error || ERROR_MESSAGES.PRODUCT_NOT_FOUND);
       }
 
-      // Crear la compra sin importar si ya existen otras del mismo producto
-      console.log('Creating purchase with data:', purchaseData);
+      console.log(ERROR_MESSAGES.CREATING_PURCHASE, purchaseData);
       const purchase = await Purchase.create({
         ...purchaseData,
         purchase_date: new Date()
@@ -33,17 +31,18 @@ export class PurchaseService {
 
       await transaction.commit();
       
-      // Invalidar cache
-      await redis.del(`cache:${process.env.PRODUCT_SERVICE_URL}/${purchaseData.product_id}`);
+      // Invalidar cache usando cacheService
+      const cacheKey = `product:${purchaseData.product_id}`;
+      await cacheService.clearCache([cacheKey]);
       
       return purchase;
     } catch (error) {
-      console.error('Error in createPurchase:', error);
+      console.error(ERROR_MESSAGES.CREATE_PURCHASE_ERROR, error);
       await transaction.rollback();
       throw error;
     }
   }
-// Eliminar una compra
+
   static async deletePurchase(purchaseId: number) {
     const transaction = await db.transaction();
   
@@ -55,8 +54,12 @@ export class PurchaseService {
       }
   
       await purchase.destroy({ transaction });
-  
       await transaction.commit();
+      
+      // Invalidar cache del producto asociado
+      const cacheKey = `product:${purchase.product_id}`;
+      await cacheService.clearCache([cacheKey]);
+      
       return true;
     } catch (error) {
       await transaction.rollback();

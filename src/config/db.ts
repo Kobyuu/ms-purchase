@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize-typescript';
 import dotenv from 'dotenv';
 import colors from 'colors';
-import { ERROR_MESSAGES, SUCCESS_MESSAGES } from './constants';
+import { ERROR_MESSAGES, SUCCESS_MESSAGES, ENV } from './constants';
 
 dotenv.config();
 
@@ -16,27 +16,27 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
     models: [__dirname + '/../models/**/*.ts'],
     logging: false,
     pool: {
-      max: 5,
-      min: 1,
-      idle: 600000, // 10 minutos en milisegundos
-      acquire: 30000, // 30 segundos en milisegundos
-    },
+        max: ENV.DATABASE.POOL.MAX,
+        min: ENV.DATABASE.POOL.MIN,
+        idle: ENV.DATABASE.POOL.IDLE,
+        acquire: ENV.DATABASE.POOL.ACQUIRE
+    }
 });
 
 // Hook para intentar reconectar automáticamente si la conexión se pierde
 sequelize.addHook('afterDisconnect', async () => {
-  console.log('Conexión a la base de datos perdida. Intentando reconectar...');
+  console.log(ERROR_MESSAGES.DB_CONNECTION_LOST);
   try {
     await sequelize.authenticate();
-    console.log('Reconectado a la base de datos con éxito.');
+    console.log(ERROR_MESSAGES.DB_RECONNECTED);
   } catch (err) {
-    console.error('Error al intentar reconectar:', err);
+    console.error(ERROR_MESSAGES.DB_RECONNECT_ERROR, err);
   }
 });
 
 // Conectar a la base de datos
 export async function connectDb(): Promise<void> {
-    const maxRetries = 5;
+    const maxRetries = ENV.DATABASE.RETRY.MAX_ATTEMPTS;
     let currentTry = 1;
 
     while (currentTry <= maxRetries) {
@@ -48,7 +48,7 @@ export async function connectDb(): Promise<void> {
         } catch (error) {
             console.error(colors.bgRed.white(`Intento ${currentTry} de ${maxRetries}: ${ERROR_MESSAGES.DB_CONNECTION}`), error);
             if (currentTry === maxRetries) throw error;
-            await new Promise(resolve => setTimeout(resolve, 5000)); // espera 5 segundos
+            await new Promise(resolve => setTimeout(resolve, ENV.DATABASE.RETRY.DELAY));
             currentTry++;
         }
     }

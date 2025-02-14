@@ -7,11 +7,29 @@ export const ERROR_MESSAGES = {
     DB_CONNECTION: "Error al conectar la base de datos",
     REDIS_CONNECTION: "Error al conectar a Redis",
     PURCHASE_NOT_FOUND: 'Compra no encontrada',
-    };
+    HTTP_REQUEST: 'Error en la solicitud HTTP',
+    DB_RECONNECT_ERROR: 'Error al intentar reconectar:',
+    DB_CONNECTION_LOST: 'Conexión a la base de datos perdida. Intentando reconectar...',
+    PURCHASE_CREATION_ERROR: 'Purchase creation error:',
+    DB_RECONNECTED: 'Reconectado a la base de datos con éxito.',
+    PRODUCT_REQUEST: 'Requesting product from:',
+    PRODUCT_FETCH_ERROR:'Error fetching product:',
+    PRODUCT_INACTIVE: 'El producto está desactivado',
+    FETCHING_PRODUCT: 'Error fetching product with ID:',
+    CREATING_PURCHASE: 'Error creating purchase:',
+    CREATE_PURCHASE_ERROR: 'Error in purchase creation:',
+    PURCHASE_DELETE_ERROR: 'Error deleting purchase:',
+};
 
 export const SUCCESS_MESSAGES = {
     PURCHASE_CREATED: 'Compra creada',
     DB_CONNECTION: "Conexión exitosa a la base de datos",
     REDIS_CONNECTION: "Conexión exitosa a Redis",
     GET_PURCHASES: 'Compras obtenidas con éxito',
+    PURCHASE_DELETED: 'Purchase deleted successfully'
+};
+
+export const DYNAMIC_MESSAGES = {
+    SERVER_START: (port: number) => `REST API en el puerto ${port}`,
+    RETRY_ATTEMPT: (retryCount: number) => `Intento de reintento: ${retryCount}` 
 };

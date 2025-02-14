@@ -25,9 +25,15 @@ export class PurchaseController {
     try {
       const { id } = req.params;
       await PurchaseService.deletePurchase(Number(id));
-      return res.status(HTTP.OK).json({ success: true, message: 'Purchase deleted successfully' });
+      return res.status(HTTP.OK).json({ 
+        success: true, 
+        message: SUCCESS_MESSAGES.PURCHASE_DELETED 
+      });
     } catch (error) {
-      return res.status(HTTP.SERVER_ERROR).json({ success: false, message: error.message });
+      return res.status(HTTP.SERVER_ERROR).json({ 
+        success: false, 
+        message: error.message 
+      });
     }
   }
   // Crear una compra
@@ -39,7 +45,7 @@ export class PurchaseController {
         purchase 
       });
     } catch (error) {
-      console.error('Purchase creation error:', error); // Agregar log
+      console.error(ERROR_MESSAGES.PURCHASE_CREATION_ERROR, error);
       if (error.message === ERROR_MESSAGES.PRODUCT_NOT_FOUND) {
         return res.status(HTTP.NOT_FOUND).json({ 
           error: ERROR_MESSAGES.PRODUCT_NOT_FOUND 
