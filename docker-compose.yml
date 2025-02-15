@@ -61,10 +61,10 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       # Database Pool Configuration
-      DB_POOL_MAX: 5
-      DB_POOL_MIN: 1
-      DB_POOL_IDLE: 600000
-      DB_POOL_ACQUIRE: 30000
+      DB_POOL_MAX: 50
+      DB_POOL_MIN: 10
+      DB_POOL_IDLE: 30000
+      DB_POOL_ACQUIRE: 60000
       # Database Retry Configuration
       DB_RETRY_ATTEMPTS: 5
       DB_RETRY_DELAY: 5000
@@ -75,6 +75,18 @@ services:
     volumes:
       - .:/app
     command: npm run dev
+    networks:
+      - microservicios-red
+
+  k6:
+    image: loadimpact/k6
+    container_name: ms-purchase_k6
+    profiles: ["k6"]
+    volumes:
+      - ./k6:/k6
+    entrypoint: ["k6", "run", "/k6/load-test.js"]
+    depends_on:
+      - app
     networks:
       - microservicios-red
 
