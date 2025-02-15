@@ -58,6 +58,19 @@ DB_RETRY_DELAY=5000
 REDIS_RETRY_MULTIPLIER=50
 ```
 
+### Tests
+jest.config.js
+```js
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  testMatch: ['**/__tests__/**/*.test.ts'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+};
+```
+
 ### Installation
 Clone the repository
 Install dependencies:
