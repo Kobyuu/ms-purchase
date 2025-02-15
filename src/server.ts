@@ -1,7 +1,6 @@
 import express from 'express'
-import colors from 'colors'
 import router from './router'
-import db from './config/db'
+import limiter from './middleware/rateLimiter';
 
 // Instancia de express
 const server = express()
@@ -10,6 +9,9 @@ const server = express()
 
 //Leer datos de formularios
 server.use(express.json())
+
+// Configuración de limitador de tasa
+server.use(limiter);
 
 // Configuración de rutas
 server.use('/api/purchase', router)

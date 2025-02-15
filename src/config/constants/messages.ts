@@ -22,7 +22,8 @@ export const ERROR_MESSAGES = {
     INVALID_PRODUCT_ID: 'ID de producto inválido',
     CACHE_CLEARED: 'Cache cleared for key:',
     INVALID_PURCHASE_ID: 'ID de compra inválido',
-    DELETE_PURCHASE_ERROR: 'Error al eliminar la compra'
+    DELETE_PURCHASE_ERROR: 'Error al eliminar la compra',
+    RATE_LIMIT_EXCEEDED: 'Demasiadas solicitudes desde esta IP, por favor intente de nuevo más tarde.'
 };
 
 export const SUCCESS_MESSAGES = {
