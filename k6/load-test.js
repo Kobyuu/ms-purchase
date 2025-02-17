@@ -11,7 +11,7 @@ const headers = {
 
 const params = {
   headers: headers,
-  timeout: '15s'
+  timeout: '10s'
 };
 
 // Métricas personalizadas
@@ -22,22 +22,22 @@ const failedDeletions = new Counter('failed_deletions');
 const successRate = new Rate('success_rate');
 
 export const options = {
-  setupTimeout: '30s',
+  setupTimeout: '20s',
   scenarios: {
     purchases: {
-      executor: 'constant-arrival-rate',  // Ejecutor por tasa constante
-      rate: 2,                           // Tasa de 2 iteraciones por segundo
+      executor: 'constant-arrival-rate',
+      rate: 2,
       timeUnit: '1s',
       duration: '30s',
-      preAllocatedVUs: 3,                // VUs iniciales
-      maxVUs: 6,                         // Máximo de VUs
+      preAllocatedVUs: 3,
+      maxVUs: 6,
       startTime: '5s'
     },
   },
   thresholds: {
-    http_req_duration: ['p(95)<2000'],  // 95% de las peticiones en menos de 2s
-    http_req_failed: ['rate<0.05'],      // Máximo 5% de fallos
-    success_rate: ['rate>0.95']          // Tasa de éxito mayor al 95%
+    http_req_duration: ['p(95)<2000'],
+    http_req_failed: ['rate<0.05'],
+    success_rate: ['rate>0.95']
   },
 };
 
@@ -48,7 +48,7 @@ const retryRequest = (request, maxRetries = 3) => {
     try {
       const response = request();
 
-      if (response.status === 429) {  // Si se alcanza límite de tasa
+      if (response.status === 429) {  // Límite de tasa
         sleep(1);
         continue;
       }
@@ -57,9 +57,9 @@ const retryRequest = (request, maxRetries = 3) => {
         return response;
       }
 
-      // Backoff con jitter
+      // Backoff ligero con jitter
       if (i < maxRetries - 1) {
-        sleep(Math.min(0.5 * Math.pow(2, i) + Math.random() * 0.5, 2));
+        sleep(0.5 + Math.random() * 0.5);
       }
     } catch (error) {
       lastError = error;
@@ -71,25 +71,23 @@ const retryRequest = (request, maxRetries = 3) => {
 
 export function setup() {
   console.log('Iniciando test de carga para el microservicio purchase...');
-  const maxAttempts = 5;
-  for (let i = 0; i < maxAttempts; i++) {
+  for (let i = 0; i < 5; i++) {
     const res = http.get(`${BASE_URL}/`);
     if (res.status === 200) {
       console.log('Servicio purchase listo para testing');
       sleep(2);
-      return true;
+      return;
     }
-    console.log(`Esperando el servicio purchase... Quedan ${maxAttempts - i} intentos`);
+    console.log(`Esperando el servicio purchase... Intento ${i + 1}`);
     sleep(2);
   }
   throw new Error('Servicio purchase no disponible');
 }
 
 export default function() {
-  // Generamos un payload con datos de compra.
   const payload = JSON.stringify({
-    product_id: Math.floor(Math.random() * 3) + 1, // IDs entre 1 y 3
-    quantity: 1  // Cantidad fija
+    product_id: 1,
+    mailing_address: "Calle de Prueba 123"
   });
 
   try {
@@ -98,26 +96,22 @@ export default function() {
 
     if (!purchaseResponse || purchaseResponse.status !== 201) {
       failedPurchases.add(1);
+      successRate.add(0);
       return;
     }
 
+    const purchaseBody = JSON.parse(purchaseResponse.body);
+
     const purchaseSuccess = check(purchaseResponse, {
       'compra creada exitosamente': (r) => r.status === 201,
-      'compra tiene un ID válido': (r) => {
-        try {
-          const body = JSON.parse(r.body);
-          return body && body.id > 0;
-        } catch (e) {
-          return false;
-        }
-      }
+      'compra tiene un ID válido': () => purchaseBody.purchase && purchaseBody.purchase.id > 0
     });
 
     if (purchaseSuccess) {
       successfulPurchases.add(1);
-      const purchaseId = JSON.parse(purchaseResponse.body).id;
+      const purchaseId = purchaseBody.purchase.id;
 
-      sleep(0.5); // Tiempo de espera reducido
+      sleep(0.5);
 
       // 2. Eliminar la compra
       const deletionResponse = retryRequest(() => http.del(`${BASE_URL}/${purchaseId}`, null, params));
@@ -140,5 +134,5 @@ export default function() {
     successRate.add(0);
   }
 
-  sleep(0.5); // Tiempo de espera antes de la siguiente iteración
+  sleep(0.5);
 }
