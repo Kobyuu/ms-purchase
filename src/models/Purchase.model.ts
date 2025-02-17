@@ -3,7 +3,6 @@ import { Table, Column, Model, DataType, Default } from 'sequelize-typescript';
 @Table({
     tableName: 'purchases',
     indexes: [
-        // We can add an index for better query performance, but not unique
         {
             fields: ['product_id']
         }

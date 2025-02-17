@@ -2,7 +2,7 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { Counter, Rate } from 'k6/metrics';
 
-// Configuración
+// Configuración de la URL base y headers para las peticiones
 const BASE_URL = 'http://ms-purchase_app:4004/api/purchase';
 const headers = {
   'Content-Type': 'application/json',
@@ -21,6 +21,7 @@ const failedPurchases = new Counter('failed_purchases');
 const failedDeletions = new Counter('failed_deletions');
 const successRate = new Rate('success_rate');
 
+// Configuración de los escenarios de prueba y umbrales de rendimiento
 export const options = {
   setupTimeout: '20s',
   scenarios: {
@@ -41,14 +42,14 @@ export const options = {
   },
 };
 
-// Función de reintento mejorada
+// Función de reintento de peticiones
 const retryRequest = (request, maxRetries = 3) => {
   let lastError;
   for (let i = 0; i < maxRetries; i++) {
     try {
       const response = request();
 
-      if (response.status === 429) {  // Límite de tasa
+      if (response.status === 429) {  // Ratelimiter
         sleep(1);
         continue;
       }
@@ -68,7 +69,7 @@ const retryRequest = (request, maxRetries = 3) => {
   }
   throw lastError || new Error(`Request failed after ${maxRetries} attempts`);
 };
-
+// Funcion que verifica la disponibilidad del servicio antes de comenzar las pruebas de carga
 export function setup() {
   console.log('Iniciando test de carga para el microservicio purchase...');
   for (let i = 0; i < 5; i++) {
@@ -83,7 +84,7 @@ export function setup() {
   }
   throw new Error('Servicio purchase no disponible');
 }
-
+// Función principal de prueba que ejecuta el flujo completo de compra y eliminación
 export default function() {
   const payload = JSON.stringify({
     product_id: 1,

@@ -3,7 +3,6 @@ import { PurchaseController } from '../controllers/purchaseController';
 import { PurchaseService } from '../services/purchaseService';
 import { HTTP, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../config/constants';
 
-// Mock PurchaseService
 jest.mock('../services/purchaseService');
 
 describe('PurchaseController', () => {

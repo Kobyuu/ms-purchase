@@ -5,8 +5,6 @@ import limiter from './middleware/rateLimiter';
 // Instancia de express
 const server = express()
 
-// Aplicar ratelimtier a todas las rutas
-
 //Leer datos de formularios
 server.use(express.json())
 

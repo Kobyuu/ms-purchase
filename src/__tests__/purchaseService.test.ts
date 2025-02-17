@@ -5,7 +5,7 @@ import { cacheService } from '../services/redisCacheService';
 import db from '../config/db';
 import { ERROR_MESSAGES, HTTP } from '../config/constants';
 
-// Mock Sequelize and dbService
+// Mock de la base de datos y transacciones
 jest.mock('../config/db', () => {
     const mockTransaction = {
         commit: jest.fn().mockResolvedValue(undefined),
@@ -25,22 +25,25 @@ jest.mock('../config/db', () => {
     };
 })
 
-// Mocks
+// Mocks de modelos y servicios
 jest.mock('../models/Purchase.model');
 jest.mock('../services/productService');
 jest.mock('../services/redisCacheService');
 
+// Suite de pruebas para el servicio de compras
 describe('PurchaseService', () => {
   const mockTransaction = {
     commit: jest.fn(),
     rollback: jest.fn()
   };
 
+  // Limpia mocks antes de cada prueba
   beforeEach(() => {
     jest.clearAllMocks();
     (db.transaction as jest.Mock).mockResolvedValue(mockTransaction);
   });
 
+  // Pruebas de obtención de compras
   describe('getAllPurchases', () => {
     it('should return all purchases', async () => {
       const mockPurchases = [
@@ -56,6 +59,7 @@ describe('PurchaseService', () => {
     });
   });
 
+  // Pruebas de creación de compras
   describe('createPurchase', () => {
     const mockPurchaseData = {
       product_id: 1,
@@ -111,6 +115,7 @@ describe('PurchaseService', () => {
     });
   });
 
+  // Pruebas de eliminación de compras
   describe('deletePurchase', () => {
     const mockPurchase = {
       id: 1,

@@ -2,7 +2,7 @@ import { DEFAULTS } from './defaults';
 import { validateEnv } from '../validateEnv';
 
 validateEnv();
-
+// Llama a process.env para obtener las variables de entorno y asignarlas a las constantes
 const {
     DATABASE_URL,
     NODE_ENV,
@@ -22,7 +22,7 @@ const {
     DB_RETRY_DELAY,
     REDIS_RETRY_MULTIPLIER
 } = process.env;
-
+// Exporta las constantes de entorno
 export const ENV = {
     NODE_ENV: NODE_ENV || DEFAULTS.NODE_ENV,
     PORT: Number(PORT) || DEFAULTS.PORT,

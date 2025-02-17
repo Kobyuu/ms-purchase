@@ -15,15 +15,15 @@ export function validateEnv(): void {
         'RETRY_ATTEMPTS',
         'RETRY_DELAY',
         'PRODUCT_SERVICE_URL',
-        // Database Pool Configuration
+        // Configuración de los pools de conexión a la base de datos
         'DB_POOL_MAX',
         'DB_POOL_MIN',
         'DB_POOL_IDLE',
         'DB_POOL_ACQUIRE',
-        // Database Retry Configuration
+        // Configuración de reintento de conexión a la base de datos
         'DB_RETRY_ATTEMPTS',
         'DB_RETRY_DELAY',
-        // Redis Configuration
+        // Configuración de reintento de conexión a Redis
         'REDIS_RETRY_MULTIPLIER'
     ];
 
