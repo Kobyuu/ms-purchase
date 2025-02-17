@@ -3,14 +3,17 @@ import { PurchaseController } from '../controllers/purchaseController';
 import { PurchaseService } from '../services/purchaseService';
 import { HTTP, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../config/constants';
 
+// Mock del servicio de compras
 jest.mock('../services/purchaseService');
 
+// Tests del controlador de compras
 describe('PurchaseController', () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
   let jsonSpy: jest.Mock;
   let statusSpy: jest.Mock;
 
+  // Configura mocks antes de cada test
   beforeEach(() => {
     jsonSpy = jest.fn();
     statusSpy = jest.fn().mockReturnThis();
@@ -21,6 +24,7 @@ describe('PurchaseController', () => {
     mockRequest = {};
   });
 
+  // Tests para obtener compras
   describe('getPurchases', () => {
     it('should return all purchases successfully', async () => {
       const mockPurchases = [
@@ -59,6 +63,7 @@ describe('PurchaseController', () => {
     });
   });
 
+  // Tests para crear compras
   describe('createPurchase', () => {
     const mockPurchaseData = {
       product_id: 1,
@@ -104,6 +109,7 @@ describe('PurchaseController', () => {
     });
   });
 
+  // Tests para eliminar compras
   describe('deletePurchase', () => {
     it('should delete a purchase successfully', async () => {
       mockRequest.params = { id: '1' };
