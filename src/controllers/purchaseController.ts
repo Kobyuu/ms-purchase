@@ -39,21 +39,24 @@ export class PurchaseController {
   // Crear una compra
   static async createPurchase(req: Request, res: Response): Promise<Response> {
     try {
-      const purchase = await PurchaseService.createPurchase(req.body);
-      return res.status(HTTP.CREATED).json({ 
-        message: SUCCESS_MESSAGES.PURCHASE_CREATED, 
-        purchase 
-      });
-    } catch (error) {
-      console.error(ERROR_MESSAGES.CREATE_ERROR, error);
-      if (error.message === ERROR_MESSAGES.PRODUCT_NOT_FOUND) {
-        return res.status(HTTP.NOT_FOUND).json({ 
-          error: ERROR_MESSAGES.PRODUCT_NOT_FOUND 
+        const purchase = await PurchaseService.createPurchase(req.body);
+        return res.status(HTTP.CREATED).json({ 
+            success: true,
+            message: SUCCESS_MESSAGES.PURCHASE_CREATED, 
+            data: purchase 
         });
-      }
-      return res.status(HTTP.SERVER_ERROR).json({ 
-        error: error.message || ERROR_MESSAGES.CREATE_ERROR 
-      });
+    } catch (error) {
+        console.error(ERROR_MESSAGES.CREATE_ERROR, error);
+        if (error.message === ERROR_MESSAGES.PRODUCT_NOT_FOUND) {
+            return res.status(HTTP.NOT_FOUND).json({ 
+                success: false,
+                error: ERROR_MESSAGES.PRODUCT_NOT_FOUND 
+            });
+        }
+        return res.status(HTTP.SERVER_ERROR).json({ 
+            success: false,
+            error: error.message || ERROR_MESSAGES.CREATE_ERROR 
+        });
     }
   }
 }

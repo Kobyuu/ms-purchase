@@ -25,38 +25,32 @@ export class PurchaseService {
         }
 
         // Verifica existencia del producto antes de iniciar la transacción
-        console.log(ERROR_MESSAGES.FETCHING_PRODUCT, purchaseData.product_id);
         const productResponse = await ProductService.getProductById(purchaseData.product_id);
 
-        if (!productResponse || productResponse.statusCode !== HTTP.OK) {
+        // Verifica la respuesta del servicio de productos
+        if (!productResponse || productResponse.statusCode !== HTTP.OK || !productResponse.data) {
             throw new Error(ERROR_MESSAGES.PRODUCT_NOT_FOUND);
         }
 
         // Inicia la transacción después de validar
         transaction = await db.transaction();
 
-        // Crea el registro de compra
+        // Crea el registro de compra asegurándose que product_id es un número
         const purchase = await Purchase.create({
-            ...purchaseData,
+            product_id: Number(purchaseData.product_id),
+            mailing_address: purchaseData.mailing_address,
             purchase_date: new Date()
         }, { transaction });
 
-        // Confirma la transacción
         await transaction.commit();
         
-        // Limpia caché del producto después de confirmar la transacción
         const cacheKey = CACHE_KEYS.PRODUCT.BY_ID(purchaseData.product_id);
         await cacheService.clearCache([cacheKey]);
         
         return purchase;
     } catch (error) {
-        // Solo intenta hacer rollback si la transacción existe
         if (transaction) {
-            try {
-                await transaction.rollback();
-            } catch (rollbackError) {
-                console.error(LOG_MESSAGES.ROLLBACK_ERROR, rollbackError);
-            }
+            await transaction.rollback();
         }
         throw new Error(error.message || ERROR_MESSAGES.CREATE_ERROR);
     }
