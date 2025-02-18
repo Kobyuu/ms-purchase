@@ -8,6 +8,7 @@ export const ERROR_MESSAGES = {
     
     // Errores de Redis/Cache
     REDIS_CONNECTION: "Error al conectar a Redis",
+    REDIS_URL_PARSE: 'Error parsing Redis URL:',
     CACHE_CLEARED: 'Cache limpiado para la clave:',
     
     // Errores de Compras

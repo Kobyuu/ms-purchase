@@ -4,7 +4,6 @@ import { ENV } from './constants/environment';
 import { 
   ERROR_MESSAGES, 
   SUCCESS_MESSAGES, 
-  DEFAULTS,
   REDIS_CONFIG 
 } from './constants';
 
@@ -13,15 +12,15 @@ const parseRedisUrl = (url: string) => {
   try {
     const redisUrl = new URL(url);
     return {
-      host: redisUrl.hostname || DEFAULTS.REDIS.HOST,
-      port: parseInt(redisUrl.port || DEFAULTS.REDIS.PORT.toString(), 10)
+      host: redisUrl.hostname || ENV.REDIS.HOST,
+      port: parseInt(redisUrl.port || ENV.REDIS.PORT.toString(), 10)
     };
   } catch (error) {
     console.error(ERROR_MESSAGES.REDIS_URL_PARSE, error);
     // Valores por defecto si hay error en el parsing
     return {
-      host: DEFAULTS.REDIS.HOST,
-      port: DEFAULTS.REDIS.PORT
+      host: ENV.REDIS.HOST,
+      port: ENV.REDIS.PORT
     };
   }
 };
@@ -36,7 +35,7 @@ const redisClient = process.env.NODE_ENV === REDIS_CONFIG.ENVIRONMENTS.TEST
       host: redisConfig.host,
       port: redisConfig.port,
       retryStrategy: (times) => {
-        return Math.min(times * DEFAULTS.REDIS.RETRY_MULTIPLIER, DEFAULTS.REDIS.RETRY_DELAY);
+        return Math.min(times * ENV.REDIS.RETRY_MULTIPLIER, ENV.REDIS.RETRY_DELAY);
       }
     });
 
