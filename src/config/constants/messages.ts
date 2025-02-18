@@ -46,9 +46,11 @@ export const SUCCESS_MESSAGES = {
 };
 
 export const DYNAMIC_MESSAGES = {
-    // Mensajes del Sistema
     SERVER_START: (port: number) => `REST API en el puerto ${port}`,
-    RETRY_ATTEMPT: (retryCount: number) => `Intento de reintento: ${retryCount}` 
+    RETRY_ATTEMPT: (retryCount: number, maxRetries: number) => 
+        `Intento de reconexión ${retryCount} de ${maxRetries}`,
+    DB_RETRY_ATTEMPT: (retryCount: number, maxRetries: number) => 
+        `Intento de conexión a la base de datos ${retryCount} de ${maxRetries}`
 };
 
 export const LOG_MESSAGES = {

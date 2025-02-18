@@ -1,7 +1,6 @@
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
-import { ERROR_MESSAGES, DYNAMIC_MESSAGES, ENV, CACHE_CONFIG } from './constants';
-import { HTTP } from './constants';
+import { ERROR_MESSAGES, DYNAMIC_MESSAGES, ENV, CACHE_CONFIG, HTTP } from './constants';
 import { cacheService } from '../services/redisCacheService';
 
 const axiosClient = axios.create({
@@ -13,7 +12,7 @@ const axiosClient = axios.create({
 axiosRetry(axiosClient, {
   retries: ENV.RETRY_LIMIT,
   retryDelay: (retryCount) => {
-    console.log(DYNAMIC_MESSAGES.RETRY_ATTEMPT(retryCount));
+    console.log(DYNAMIC_MESSAGES.RETRY_ATTEMPT(retryCount, ENV.RETRY_LIMIT));
     return retryCount * ENV.REDIS.RETRY_DELAY;
   },
   retryCondition: (error) => {
