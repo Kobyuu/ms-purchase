@@ -45,7 +45,7 @@ export class PurchaseController {
         purchase 
       });
     } catch (error) {
-      console.error(ERROR_MESSAGES.PURCHASE_CREATION_ERROR, error);
+      console.error(ERROR_MESSAGES.CREATE_ERROR, error);
       if (error.message === ERROR_MESSAGES.PRODUCT_NOT_FOUND) {
         return res.status(HTTP.NOT_FOUND).json({ 
           error: ERROR_MESSAGES.PRODUCT_NOT_FOUND 

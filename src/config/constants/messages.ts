@@ -8,24 +8,19 @@ export const ERROR_MESSAGES = {
     
     // Errores de Redis/Cache
     REDIS_CONNECTION: "Error al conectar a Redis",
-    CACHE_CLEARED: 'Cache cleared for key:',
-    REDIS_URL_PARSE: 'Error al analizar la URL de Redis:',
-
+    CACHE_CLEARED: 'Cache limpiado para la clave:',
+    
     // Errores de Compras
     GET_PURCHASES_ERROR: 'Error al obtener compras',
     CREATE_ERROR: 'Error al crear la compra',
     PURCHASE_NOT_FOUND: 'Compra no encontrada',
-    PURCHASE_CREATION_ERROR: 'Purchase creation error:',
-    CREATING_PURCHASE: 'Error creating purchase:',
-    CREATE_PURCHASE_ERROR: 'Error in purchase creation:',
-    PURCHASE_DELETE_ERROR: 'Error deleting purchase:',
     DELETE_PURCHASE_ERROR: 'Error al eliminar la compra',
     
     // Errores de Productos
     PRODUCT_NOT_FOUND: 'Producto no encontrado',
-    PRODUCT_REQUEST: 'Requesting product from:',
-    PRODUCT_FETCH_ERROR:'Error fetching product:',
-    FETCHING_PRODUCT: 'Error fetching product with ID:',
+    PRODUCT_REQUEST: 'Solicitando producto desde:',
+    PRODUCT_FETCH_ERROR: 'Error al obtener producto:',
+    FETCHING_PRODUCT: 'Error al obtener producto con ID:',
     
     // Errores de Validación
     INVALID_DATA: 'Datos inválidos',
@@ -46,18 +41,16 @@ export const SUCCESS_MESSAGES = {
     // Operaciones de Compras Exitosas
     PURCHASE_CREATED: 'Compra creada',
     GET_PURCHASES: 'Compras obtenidas con éxito',
-    PURCHASE_DELETED: 'Purchase deleted successfully'
+    PURCHASE_DELETED: 'Compra eliminada con éxito'
 };
 
 export const DYNAMIC_MESSAGES = {
     // Mensajes del Sistema
     SERVER_START: (port: number) => `REST API en el puerto ${port}`,
-    RETRY_ATTEMPT: (retryCount: number) => `Intento de reintento: ${retryCount}`,
-    DB_RETRY_ATTEMPT: (current: number, max: number) => 
-    `Intento ${current} de ${max}: ${ERROR_MESSAGES.DB_CONNECTION}`,
+    RETRY_ATTEMPT: (retryCount: number) => `Intento de reintento: ${retryCount}` 
 };
 
 export const LOG_MESSAGES = {
-  SERVICE_ERROR: 'Service Error:',
-  ROLLBACK_ERROR: 'Rollback error:',
+  SERVICE_ERROR: 'Error en el servicio:',
+  ROLLBACK_ERROR: 'Error de rollback:',
 };
