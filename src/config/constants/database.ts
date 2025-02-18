@@ -6,3 +6,10 @@ export const DATABASE = {
       ORDER: "DESC"
     }
   };
+  export const DATABASE_CONFIG = {
+    DIALECT: 'postgres',
+    MODELS_PATH: '/../models/**/*.ts',
+    HOOKS: {
+      AFTER_DISCONNECT: 'afterDisconnect'
+    }
+  } as const;

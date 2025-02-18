@@ -9,7 +9,8 @@ export const ERROR_MESSAGES = {
     // Errores de Redis/Cache
     REDIS_CONNECTION: "Error al conectar a Redis",
     CACHE_CLEARED: 'Cache cleared for key:',
-    
+    REDIS_URL_PARSE: 'Error al analizar la URL de Redis:',
+
     // Errores de Compras
     GET_PURCHASES_ERROR: 'Error al obtener compras',
     CREATE_ERROR: 'Error al crear la compra',
@@ -51,5 +52,12 @@ export const SUCCESS_MESSAGES = {
 export const DYNAMIC_MESSAGES = {
     // Mensajes del Sistema
     SERVER_START: (port: number) => `REST API en el puerto ${port}`,
-    RETRY_ATTEMPT: (retryCount: number) => `Intento de reintento: ${retryCount}` 
+    RETRY_ATTEMPT: (retryCount: number) => `Intento de reintento: ${retryCount}`,
+    DB_RETRY_ATTEMPT: (current: number, max: number) => 
+    `Intento ${current} de ${max}: ${ERROR_MESSAGES.DB_CONNECTION}`,
+};
+
+export const LOG_MESSAGES = {
+  SERVICE_ERROR: 'Service Error:',
+  ROLLBACK_ERROR: 'Rollback error:',
 };

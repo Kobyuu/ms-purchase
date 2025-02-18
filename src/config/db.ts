@@ -1,19 +1,23 @@
 import { Sequelize } from 'sequelize-typescript';
 import dotenv from 'dotenv';
 import colors from 'colors';
-import { ERROR_MESSAGES, SUCCESS_MESSAGES, ENV } from './constants';
+import { 
+  ERROR_MESSAGES, 
+  SUCCESS_MESSAGES, 
+  DYNAMIC_MESSAGES,
+  ENV, 
+  DATABASE_CONFIG 
+} from './constants';
 
 dotenv.config();
 
-// Verificar que la variable de entorno DATABASE_URL esté definida
 if (!process.env.DATABASE_URL) {
     throw new Error(ERROR_MESSAGES.DB_URL_NOT_DEFINED);
 }
 
-// Crear una instancia de Sequelize con la URL de la base de datos
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
-    dialect: 'postgres',
-    models: [__dirname + '/../models/**/*.ts'],
+    dialect: DATABASE_CONFIG.DIALECT,
+    models: [__dirname + DATABASE_CONFIG.MODELS_PATH],
     logging: false,
     pool: {
         max: ENV.DATABASE.POOL.MAX,
@@ -23,8 +27,7 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
     }
 });
 
-// Hook para intentar reconectar automáticamente si la conexión se pierde
-sequelize.addHook('afterDisconnect', async () => {
+sequelize.addHook(DATABASE_CONFIG.HOOKS.AFTER_DISCONNECT, async () => {
   console.log(ERROR_MESSAGES.DB_CONNECTION_LOST);
   try {
     await sequelize.authenticate();
@@ -34,7 +37,6 @@ sequelize.addHook('afterDisconnect', async () => {
   }
 });
 
-// Conectar a la base de datos
 export async function connectDb(): Promise<void> {
     const maxRetries = ENV.DATABASE.RETRY.MAX_ATTEMPTS;
     let currentTry = 1;
@@ -46,9 +48,16 @@ export async function connectDb(): Promise<void> {
             console.log(colors.bgGreen.white(SUCCESS_MESSAGES.DB_CONNECTION));
             return;
         } catch (error) {
-            console.error(colors.bgRed.white(`Intento ${currentTry} de ${maxRetries}: ${ERROR_MESSAGES.DB_CONNECTION}`), error);
+            console.error(
+                colors.bgRed.white(
+                    DYNAMIC_MESSAGES.DB_RETRY_ATTEMPT(currentTry, maxRetries)
+                ), 
+                error
+            );
             if (currentTry === maxRetries) throw error;
-            await new Promise(resolve => setTimeout(resolve, ENV.DATABASE.RETRY.DELAY));
+            await new Promise(resolve => 
+                setTimeout(resolve, ENV.DATABASE.RETRY.DELAY)
+            );
             currentTry++;
         }
     }

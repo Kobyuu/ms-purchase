@@ -1,37 +1,38 @@
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
-import { ERROR_MESSAGES, DYNAMIC_MESSAGES, ENV } from './constants';
+import { ERROR_MESSAGES, DYNAMIC_MESSAGES, ENV, CACHE_CONFIG } from './constants';
+import { HTTP } from './constants';
 import { cacheService } from '../services/redisCacheService';
 
 const axiosClient = axios.create({
   baseURL: ENV.PRODUCT_SERVICE_URL,
-  timeout: 5000,
+  timeout: ENV.REQUEST_TIMEOUT,
 });
 
 // Configurar axios-retry
 axiosRetry(axiosClient, {
-  retries: ENV.RETRY_LIMIT, // Número de reintentos
+  retries: ENV.RETRY_LIMIT,
   retryDelay: (retryCount) => {
     console.log(DYNAMIC_MESSAGES.RETRY_ATTEMPT(retryCount));
-    return retryCount * ENV.REDIS.RETRY_DELAY; // Retraso entre reintentos (en milisegundos)
+    return retryCount * ENV.REDIS.RETRY_DELAY;
   },
   retryCondition: (error) => {
-    // Reintentar solo si es un error de red o un error 5xx
-    return axiosRetry.isNetworkOrIdempotentRequestError(error) || (error.response?.status ?? 0) >= 500;
+    return axiosRetry.isNetworkOrIdempotentRequestError(error) || 
+           (error.response?.status ?? 0) >= HTTP.SERVER_ERROR;
   },
 });
 
 // Interceptor para cache con Redis
 axiosClient.interceptors.request.use(async (config) => {
-  const cacheKey = `cache:${config.url}`;
+  const cacheKey = `${CACHE_CONFIG.PREFIX}${config.url}`;
   const cachedData = await cacheService.getFromCache(cacheKey);
 
-  if (cachedData && config.method === 'get') {
+  if (cachedData && config.method === CACHE_CONFIG.CACHEABLE_METHODS.GET) {
     config.adapter = async () => {
       return {
         data: cachedData,
-        status: 200,
-        statusText: 'OK',
+        status: HTTP.OK,
+        statusText: HTTP.OK_TEXT,
         headers: {},
         config,
         request: {},
@@ -44,8 +45,8 @@ axiosClient.interceptors.request.use(async (config) => {
 
 // Interceptor para cache con Redis
 axiosClient.interceptors.response.use(async (response) => {
-  if (response.config.method === 'get') {
-    const cacheKey = `cache:${response.config.url}`;
+  if (response.config.method === CACHE_CONFIG.CACHEABLE_METHODS.GET) {
+    const cacheKey = `${CACHE_CONFIG.PREFIX}${response.config.url}`;
     await cacheService.setToCache(cacheKey, response.data);
   }
   return response;
