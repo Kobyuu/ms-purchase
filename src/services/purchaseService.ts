@@ -14,76 +14,93 @@ export class PurchaseService {
 
   // Crea una nueva compra y maneja la transacción
   static async createPurchase(purchaseData: IPurchase) {
-    const transaction = await db.transaction();
+    let transaction;
     
     try {
-      // Valida ID del producto
-      if (!purchaseData.product_id || isNaN(purchaseData.product_id)) {
-        throw new Error(ERROR_MESSAGES.INVALID_PRODUCT_ID);
-      }
+        // Valida ID del producto antes de iniciar la transacción
+        if (!purchaseData.product_id || isNaN(purchaseData.product_id)) {
+            throw new Error(ERROR_MESSAGES.INVALID_PRODUCT_ID);
+        }
 
-      // Verifica existencia del producto
-      console.log(ERROR_MESSAGES.FETCHING_PRODUCT, purchaseData.product_id);
-      const productResponse = await ProductService.getProductById(purchaseData.product_id);
+        // Verifica existencia del producto antes de iniciar la transacción
+        console.log(ERROR_MESSAGES.FETCHING_PRODUCT, purchaseData.product_id);
+        const productResponse = await ProductService.getProductById(purchaseData.product_id);
 
-      if (productResponse.statusCode !== HTTP.OK) {
-        await transaction.rollback();
-        throw new Error(productResponse.error || ERROR_MESSAGES.PRODUCT_NOT_FOUND);
-      }
+        if (!productResponse || productResponse.statusCode !== HTTP.OK) {
+            throw new Error(ERROR_MESSAGES.PRODUCT_NOT_FOUND);
+        }
 
-      // Crea el registro de compra
-      console.log(ERROR_MESSAGES.CREATING_PURCHASE, purchaseData);
-      const purchase = await Purchase.create({
-        ...purchaseData,
-        purchase_date: new Date()
-      }, { transaction });
+        // Inicia la transacción después de validar
+        transaction = await db.transaction();
 
-      await transaction.commit();
-      
-      // Limpia caché del producto
-      const cacheKey = `product:${purchaseData.product_id}`;
-      await cacheService.clearCache([cacheKey]);
-      console.log(ERROR_MESSAGES.CACHE_CLEARED, cacheKey);
-      
-      return purchase;
+        // Crea el registro de compra
+        const purchase = await Purchase.create({
+            ...purchaseData,
+            purchase_date: new Date()
+        }, { transaction });
+
+        // Confirma la transacción
+        await transaction.commit();
+        
+        // Limpia caché del producto después de confirmar la transacción
+        const cacheKey = `product:${purchaseData.product_id}`;
+        await cacheService.clearCache([cacheKey]);
+        
+        return purchase;
     } catch (error) {
-      console.error(ERROR_MESSAGES.CREATE_PURCHASE_ERROR, error);
-      await transaction.rollback();
-      throw error;
+        // Solo intenta hacer rollback si la transacción existe
+        if (transaction) {
+            try {
+                await transaction.rollback();
+            } catch (rollbackError) {
+                console.error('Rollback error:', rollbackError);
+            }
+        }
+        throw new Error(error.message || ERROR_MESSAGES.CREATE_ERROR);
     }
   }
 
   // Elimina una compra por ID
   static async deletePurchase(purchaseId: number) {
-    if (!purchaseId || isNaN(purchaseId)) {
-      throw new Error(ERROR_MESSAGES.INVALID_PURCHASE_ID);
-    }
-
-    const transaction = await db.transaction();
-  
+    let transaction;
+    
     try {
-      // Busca la compra a eliminar
-      const purchase = await Purchase.findByPk(purchaseId);
-  
-      if (!purchase) {
-        await transaction.rollback();
-        throw new Error(ERROR_MESSAGES.PURCHASE_NOT_FOUND);
-      }
-  
-      // Elimina la compra y confirma transacción
-      await purchase.destroy({ transaction });
-      await transaction.commit();
-      
-      // Limpia caché del producto
-      const cacheKey = `product:${purchase.product_id}`;
-      await cacheService.clearCache([cacheKey]);
-      console.log(ERROR_MESSAGES.CACHE_CLEARED, cacheKey);
-      
-      return true;
+        if (!purchaseId || isNaN(purchaseId)) {
+            throw new Error(ERROR_MESSAGES.INVALID_PURCHASE_ID);
+        }
+
+        // Primero verifica si existe la compra antes de iniciar la transacción
+        const purchase = await Purchase.findByPk(purchaseId);
+        
+        if (!purchase) {
+            throw new Error(ERROR_MESSAGES.PURCHASE_NOT_FOUND);
+        }
+
+        // Inicia la transacción solo si la compra existe
+        transaction = await db.transaction();
+
+        // Elimina la compra
+        await purchase.destroy({ transaction });
+        
+        // Confirma la transacción
+        await transaction.commit();
+        
+        // Limpia caché del producto
+        const cacheKey = `product:${purchase.product_id}`;
+        await cacheService.clearCache([cacheKey]);
+        console.log(ERROR_MESSAGES.CACHE_CLEARED, cacheKey);
+        
+        return true;
     } catch (error) {
-      console.error(ERROR_MESSAGES.DELETE_PURCHASE_ERROR, error);
-      await transaction.rollback();
-      throw error;
+        // Solo intenta hacer rollback si la transacción existe
+        if (transaction) {
+            try {
+                await transaction.rollback();
+            } catch (rollbackError) {
+                console.error('Rollback error:', rollbackError);
+            }
+        }
+        throw new Error(error.message || ERROR_MESSAGES.DELETE_PURCHASE_ERROR);
     }
   }
 }

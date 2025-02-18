@@ -20,15 +20,14 @@ class ProductService {
             HTTP.BAD_REQUEST
           );
         }
-        const validationError = ProductValidationMiddleware.validateProduct(cachedProduct);
-        if (validationError) return validationError;
         return ProductValidationMiddleware.createSuccessResponse(cachedProduct as IProduct);
       }
 
       // Obtiene producto desde servicio externo
       const productResponse = await axiosClient.get(`${ENV.PRODUCT_SERVICE_URL}/${productId}`);
       
-      if (!productResponse.data) {
+      // Verifica si hay datos y si tienen la estructura esperada
+      if (!productResponse.data || !productResponse.data.data) {
         return ProductValidationMiddleware.createErrorResponse(
           ERROR_MESSAGES.PRODUCT_NOT_FOUND,
           HTTP.NOT_FOUND
@@ -37,7 +36,7 @@ class ProductService {
 
       // Mapea respuesta a modelo de producto
       const product: IProduct = {
-        productId: productResponse.data.data.id,
+        productId: productResponse.data.data.productId || productResponse.data.data.id,
         name: productResponse.data.data.name,
         price: productResponse.data.data.price,
         activate: productResponse.data.data.activate
@@ -53,6 +52,7 @@ class ProductService {
       // Guarda en caché y retorna producto
       await cacheService.setToCache(cacheKey, product);
       return ProductValidationMiddleware.createSuccessResponse(product);
+
     } catch (error: any) {
       console.error('Service Error:', error);
       if (error.response?.status === HTTP.NOT_FOUND) {
